@@ -22,10 +22,10 @@ def check_template(frame, template, threshold=0.8):
 def KartSplitter64():
 
     ##TODO: Clean up this mess
-    
+
     model = load_model('models/keras/model.keras')
-    player_select_template = cv.imread("templates/misc/reset.png")
-    player_select_template = cv.resize(player_select_template, (200, 200))
+    reset_template = cv.imread("templates/misc/reset.png")
+    reset_template = cv.resize(reset_template, (200, 200))
     console_reset_template = cv.imread("templates/misc/console_reset.png")
     console_reset_template = cv.resize(console_reset_template, (200, 200))
 
@@ -71,7 +71,7 @@ def KartSplitter64():
                     if(check_template(frame, tracks_templates[get_current_split(s)])):
                         recently_split = False
                         time.sleep(10)
-                    elif(check_template(frame, player_select_template, .6) and curr != 4 and curr != 8 and curr != 12):
+                    elif(check_template(frame, reset_template, .6) and curr != 4 and curr != 8 and curr != 12):
                         recently_split = False
                         run = False
                         reset_run(s)
@@ -96,7 +96,7 @@ def KartSplitter64():
                         cv.imwrite(os.path.join("testing-screenshots", filename), frame)
                         split(s)
 
-                    elif(check_template(frame, player_select_template, .6)):
+                    elif(check_template(frame, reset_template, .6)):
                         recently_split = False
                         run = False
                         reset_run(s)
