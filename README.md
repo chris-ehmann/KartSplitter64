@@ -11,6 +11,7 @@ KartSplitter64 is an **in-development** auto-splitter made for Mario Kart 64. It
 ## Usage
 
 **Required Python Version:** `3.10.7`
+(Older or newer versions may work, but I can't guarantee that.)
 
 KartSplitter64 is in a very early stage of development, currently being a minimally viable product. As such, you'll need to run the program via command line. You will need to install the required dependencies first, which you can do by navigating to the root directory of this project, and running 
 ```
