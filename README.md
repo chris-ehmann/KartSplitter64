@@ -22,6 +22,7 @@ You can then simply run the file `mk64as.py`. **Please make sure that LiveSplit 
 ## Bug Reporting/Feature Requests
 TBD. Some stuff is already planned (such as a user interface where you can select your capture window and easily define the gameplay region), but for any changes or issues, please use [![GitHub issues](https://img.shields.io/github/issues/chris-ehmann/KartSplitter64.svg?style=plastic)](https://github.com/chris-ehmann/KartSplitter64/issues)
 
+Code quality is terrible at the moment. This is simply because I wanted to have a working program as fast as possible. Improvements will be made over time :slight_smile: 
 
 
 
