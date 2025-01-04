@@ -25,7 +25,7 @@ def retroactive_split(socket):
     data = socket.recv(4096).decode('utf-8')
     x = data.split("\n")
     datetime_object = datetime.strptime(x[0][:-1], '%H:%M:%S.%f')
-    change_time = (datetime_object - timedelta(seconds=2.3)).strftime('%H:%M:%S.%f')
+    change_time = (datetime_object - timedelta(seconds=2.7)).strftime('%H:%M:%S.%f')
     original_time = datetime_object.strftime('%H:%M:%S.%f')
 
     socket.send(b"setgametime " + str.encode(change_time) + b"\n")

@@ -29,6 +29,10 @@ def KartSplitter64():
     console_reset_template = cv.imread("templates/misc/console_reset.png")
     console_reset_template = cv.resize(console_reset_template, (200, 200))
 
+    cv.imshow("Frame", reset_template)
+    cv.waitKey(1000)
+    cv.imshow("Frame", console_reset_template)
+
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect(("localhost", 16834))
     setup_timer(s)
@@ -69,6 +73,7 @@ def KartSplitter64():
                 if(recently_split == True and curr != -1):
                     
                     if(check_template(frame, tracks_templates[get_current_split(s)])):
+                        print("Template match. New track started")
                         recently_split = False
                         time.sleep(10)
                     elif(check_template(frame, reset_template, .6) and curr != 4 and curr != 8 and curr != 12):
@@ -90,7 +95,7 @@ def KartSplitter64():
                     pred = model.predict(validation, verbose=0)
                     
                     if(pred[0][0] > 0.9):
-                        print(pred)
+                        print("Split probs: " + str(pred))
                         recently_split = True
                         filename = str(pred) + ".jpg"
                         cv.imwrite(os.path.join("testing-screenshots", filename), frame)
@@ -103,6 +108,7 @@ def KartSplitter64():
                         break
 
                     elif(check_template(frame, console_reset_template, .7)):
+                        print("Missed split. Applying retroactive split")
                         retroactive_split(s)
                         recently_split = True
                                           
@@ -112,6 +118,7 @@ def KartSplitter64():
                 frame = np.delete(frame, 3, axis=2)
 
                 if(check_template(frame, tracks_templates[0], .8)):
+                    print("Start of run detected")
                     start_run(s)
                     run = True
                     time.sleep(5)
