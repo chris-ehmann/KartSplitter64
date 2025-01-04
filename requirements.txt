@@ -1,6 +1,6 @@
 keras==3.7.0
 mss==10.0.0
-numpy==2.2.1
+numpy==1.26.4
 opencv_python==4.10.0.84
 PyAutoGUI==0.9.54
 tensorflow==2.18.0
