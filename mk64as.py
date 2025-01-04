@@ -9,15 +9,21 @@ from keras.models import load_model
 from keras.applications.resnet50 import preprocess_input
 from lib.livesplit import start_run, reset_run, split, get_current_split, setup_timer, retroactive_split
 
-def check_template(frame, template, threshold=0.8):
+def check_template(frame, template, threshold=0.8, m="TM_CCOEFF_NORMED"):
+    method = getattr(cv, m)
     frame = cv.resize(frame, (200,200))
-    res = cv.matchTemplate(frame, template, cv.TM_CCOEFF_NORMED)
+    res = cv.matchTemplate(frame, template, method)
     min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
 
-    if(max_val > threshold):
-        return True
-        
-    else: return False
+    if(m == "TM_SQDIFF" or m == "TM_SQDIFF_NORMED"):
+
+        if(min_val < threshold):
+            return True     
+    else:
+        if(max_val > threshold):
+            return True
+
+    return False
 
 def KartSplitter64():
 
@@ -28,10 +34,6 @@ def KartSplitter64():
     reset_template = cv.resize(reset_template, (200, 200))
     console_reset_template = cv.imread("templates/misc/console_reset.png")
     console_reset_template = cv.resize(console_reset_template, (200, 200))
-
-    cv.imshow("Frame", reset_template)
-    cv.waitKey(1000)
-    cv.imshow("Frame", console_reset_template)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect(("localhost", 16834))
@@ -48,9 +50,11 @@ def KartSplitter64():
         track_number = tracks_dict[img.split('.')[0]]
         tracks_templates[track_number] = track_template
         
-    input("Move mouse to top left corner of captured video, then press enter")
+    os.system('cls')
+
+    input("Move mouse to top left corner of captured video, then press enter:")
     top_left_corner = pyautogui.position()
-    input("Move mouse to bottom right corner of captured video, then press enter")
+    input("Move mouse to bottom right corner of captured video, then press enter:")
     bot_right_corner = pyautogui.position()
 
     monitor = {"top": top_left_corner.y, "left": top_left_corner.x, "width": bot_right_corner.x - top_left_corner.x, "height": bot_right_corner.y - top_left_corner.y}
@@ -107,7 +111,7 @@ def KartSplitter64():
                         reset_run(s)
                         break
 
-                    elif(check_template(frame, console_reset_template, .7)):
+                    elif(check_template(frame, console_reset_template, .01, "TM_SQDIFF_NORMED")):
                         print("Missed split. Applying retroactive split")
                         retroactive_split(s)
                         recently_split = True
