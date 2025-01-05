@@ -17,15 +17,15 @@ def connect():
     print("Connected to LiveSplit Server")
     return s
 
-def setup_timer(socket):
+def switch_to_gametime(socket):
     socket.send(b"switchto gametime\n")
 
-def start_run(socket):
+def start(socket):
     socket.send(b"starttimer\n")
     socket.send(b"setgametime 00:00:03\n")
     socket.send(b"unpausegametime\n")
 
-def reset_run(socket):
+def reset(socket):
     socket.send(b"reset\n")
 
 def split(socket):
