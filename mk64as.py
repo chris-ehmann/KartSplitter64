@@ -4,10 +4,9 @@ import mss as mss
 import time
 import os
 import pyautogui
-import socket
 from keras.models import load_model
 from keras.applications.resnet50 import preprocess_input
-from lib.livesplit import start_run, reset_run, split, get_current_split, setup_timer, retroactive_split
+from lib.livesplit import connect, start_run, reset_run, split, get_current_split, setup_timer, retroactive_split
 
 def check_template(frame, template, threshold=0.8, m="TM_CCOEFF_NORMED"):
     method = getattr(cv, m)
@@ -35,10 +34,6 @@ def KartSplitter64():
     console_reset_template = cv.imread("templates/misc/console_reset.png")
     console_reset_template = cv.resize(console_reset_template, (200, 200))
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(("localhost", 16834))
-    setup_timer(s)
-
     assets_dir = "templates/tracks"
     list = os.listdir(assets_dir)
     tracks_dict = {'lr' : 0, 'mmf' : 1, 'ktb' : 2, 'kd' : 3, 'tt' : 4, 'fs' : 5, 'cm' : 6, 'mr' : 7, 'ws' : 8, 'sl' : 9, 'rry' : 10, 'bc' : 11, 'dkjp' : 12, 'yv' : 13, 'bb' : 14, 'rrd' : 15}
@@ -51,6 +46,8 @@ def KartSplitter64():
         tracks_templates[track_number] = track_template
         
     os.system('cls')
+    s = connect()
+    setup_timer(s)
 
     input("Move mouse to top left corner of captured video, then press enter:")
     top_left_corner = pyautogui.position()

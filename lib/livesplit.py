@@ -1,6 +1,22 @@
 import socket
 from datetime import datetime, timedelta
 
+SERVER_PORT = 16834
+HOST_NAME = 'localhost'
+
+def connect():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    while True:
+        try:
+            s.connect((HOST_NAME, SERVER_PORT))
+            break
+        except:
+            print("Unable to connect to LiveSplit Server. Please ensure that the TCP Server has been started.")
+
+    print("Connected to LiveSplit Server")
+    return s
+
 def setup_timer(socket):
     socket.send(b"switchto gametime\n")
 
