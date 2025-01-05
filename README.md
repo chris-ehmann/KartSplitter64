@@ -18,7 +18,7 @@ KartSplitter64 is in a very early stage of development, currently being a minima
 pip install -r requirements.txt
 ```
 
-You can then simply run the file `mk64as.py`. **Please make sure that LiveSplit Server is currently running before you do this! Also, check to make sure that the LiveSplit Server is configured to the default settings (i.e., "Server Port" is set to 16384). This will be changed in the future to be customizable.**
+You can then simply run the file `mk64as.py` located inside the `kartsplitter` directory. **Please make sure that LiveSplit Server is currently running before you do this! Also, check to make sure that the LiveSplit Server is configured to the default settings (i.e., "Server Port" is set to 16384). This will be changed in the future to be customizable.**
 
 ## Bug Reporting/Feature Requests
 TBD. Some stuff is already planned (such as a user interface where you can select your capture window and easily define the gameplay region), but for any changes or issues, please use [![GitHub issues](https://img.shields.io/github/issues/chris-ehmann/KartSplitter64.svg?style=plastic)](https://github.com/chris-ehmann/KartSplitter64/issues)
