@@ -34,7 +34,6 @@ def match_template(frame, template, threshold=0.8, m="TM_CCOEFF_NORMED"):
     min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
 
     if(m == "TM_SQDIFF" or m == "TM_SQDIFF_NORMED"):
-
         if(min_val < threshold):
             return True     
     else:
