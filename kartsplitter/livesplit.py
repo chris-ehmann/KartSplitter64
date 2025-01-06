@@ -36,12 +36,12 @@ def get_current_split(socket):
     data = int(socket.recv(4096).decode('utf-8'))
     return data
 
-def retroactive_split(socket):
+def retroactive_split(socket, ms):
     socket.send(b"getcurrentgametime\n")
     data = socket.recv(4096).decode('utf-8')
     x = data.split("\n")
     datetime_object = datetime.strptime(x[0][:-1], '%H:%M:%S.%f')
-    change_time = (datetime_object - timedelta(seconds=2.7)).strftime('%H:%M:%S.%f')
+    change_time = (datetime_object - timedelta(milliseconds=ms)).strftime('%H:%M:%S.%f')
     original_time = datetime_object.strftime('%H:%M:%S.%f')
 
     socket.send(b"setgametime " + str.encode(change_time) + b"\n")
