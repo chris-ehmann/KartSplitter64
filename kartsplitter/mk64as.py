@@ -11,15 +11,19 @@ import model as m
 # Constants that define the time for the model to make a prediction in milliseconds
 # And the time for the console to be reset and boot to the correct screen
 
-MODEL_PREDICTION_TIME = 0
+FAST_MODEL_PREDICTION_TIME = 0
+CHECK_MODEL_PREDICTION_TIME = 0
 CONSOLE_RESET_TIME = 2700
 
 def KartSplitter64():
 
     ##TODO: Clean up this mess
-    model = m.load('../models/keras/model.keras')
-    m.warm_up(model)
-    MODEL_PREDICTION_TIME = m.set_prediction_time(model)
+    fast_model = m.load('../models/keras/experimental_model.keras')
+    check_model = m.load('../models/keras/model.keras')
+    m.warm_up(fast_model)
+    m.warm_up(check_model)
+    MODEL_PREDICTION_TIME = m.set_prediction_time(fast_model)
+    CHECK_MODEL_PREDICTION_TIME = m.set_prediction_time(check_model)
     reset_template, console_reset_template = template_matching.load_reset_templates()
     tracks_templates = template_matching.load_track_templates()
 
@@ -34,6 +38,7 @@ def KartSplitter64():
 
     monitor = {"top": top_left_corner.y, "left": top_left_corner.x, "width": bot_right_corner.x - top_left_corner.x, "height": bot_right_corner.y - top_left_corner.y}
     recently_split = False
+    detected_frames = 0
     run = False
 
     with mss.mss() as sct:
@@ -68,14 +73,17 @@ def KartSplitter64():
                         run = False
                         break
 
-                    pred = m.predict(frame, model)
+                    pred = m.predict(frame, fast_model)
                     
-                    if(pred[0][0] > 0.9):
-                        print("Split probs: " + str(pred))
-                        recently_split = True
-                        ls.retroactive_split(s, MODEL_PREDICTION_TIME)
+                    if(pred[0][0] == 1.0):
+                        pred = m.predict(frame, check_model)
+                        if(pred[0][0] > 0.9):
+                            ls.retroactive_split(s, MODEL_PREDICTION_TIME + CHECK_MODEL_PREDICTION_TIME)
+                            recently_split = True
+                            print("Split probs: " + str(pred))
 
-                    elif(template_matching.match_template(frame, reset_template, .6)):
+
+                    if(template_matching.match_template(frame, reset_template, .6)):
                         recently_split = False
                         run = False
                         ls.reset(s)
@@ -85,6 +93,8 @@ def KartSplitter64():
                         print("Missed split. Applying retroactive split")
                         ls.retroactive_split(s, CONSOLE_RESET_TIME)
                         recently_split = True
+
+                    
                                           
             else:
                 frame = np.array(sct.grab(monitor))
