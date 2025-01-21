@@ -12,18 +12,38 @@ import model as m
 # And the time for the console to be reset and boot to the correct screen
 
 FAST_MODEL_PREDICTION_TIME = 0
-CHECK_MODEL_PREDICTION_TIME = 0
+VERIFICATION_MODEL_PREDICTION_TIME = 0
 CONSOLE_RESET_TIME = 2700
 
-def KartSplitter64():
+def get_capture():
+    input("Move mouse to top left corner of captured video, then press enter:")
+    top_left_corner = pyautogui.position()
+    input("Move mouse to bottom right corner of captured video, then press enter:")
+    bot_right_corner = pyautogui.position()
 
-    ##TODO: Clean up this mess
+    monitor = {"top": top_left_corner.y, "left": top_left_corner.x, "width": bot_right_corner.x - top_left_corner.x, "height": bot_right_corner.y - top_left_corner.y}
+    return monitor
+
+def get_frame(monitor, sct):
+    frame = np.array(sct.grab(monitor))
+    ## Delete alpha values from array to convert to something usable by OpenCV
+    frame = np.delete(frame, 3, axis=2)
+
+    return frame
+
+def load_models():
     fast_model = m.load('../models/keras/experimental_model.keras')
-    check_model = m.load('../models/keras/model.keras')
+    verification_model = m.load('../models/keras/model.keras')
     m.warm_up(fast_model)
-    m.warm_up(check_model)
+    m.warm_up(verification_model)
     MODEL_PREDICTION_TIME = m.set_prediction_time(fast_model)
-    CHECK_MODEL_PREDICTION_TIME = m.set_prediction_time(check_model)
+    VERIFICATION_MODEL_PREDICTION_TIME = m.set_prediction_time(verification_model)
+
+    return fast_model, verification_model
+
+def KartSplitter64():
+    ##TODO: Clean up this mess
+    fast_model, verification_model = load_models()
     reset_template, console_reset_template = template_matching.load_reset_templates()
     tracks_templates = template_matching.load_track_templates()
 
@@ -31,24 +51,17 @@ def KartSplitter64():
     s = ls.connect()
     ls.switch_to_gametime(s)
 
-    input("Move mouse to top left corner of captured video, then press enter:")
-    top_left_corner = pyautogui.position()
-    input("Move mouse to bottom right corner of captured video, then press enter:")
-    bot_right_corner = pyautogui.position()
-
-    monitor = {"top": top_left_corner.y, "left": top_left_corner.x, "width": bot_right_corner.x - top_left_corner.x, "height": bot_right_corner.y - top_left_corner.y}
+    monitor = get_capture()
     recently_split = False
-    detected_frames = 0
     run = False
 
     with mss.mss() as sct:
         while True:
             while run:
-                frame = np.array(sct.grab(monitor))
-                frame = np.delete(frame, 3, axis=2)
-
+                frame = get_frame(monitor, sct)
                 curr = ls.get_current_split(s)
 
+                ## Check if run has finished
                 if(curr == 16):
                     run = False
                     recently_split = False
@@ -60,6 +73,7 @@ def KartSplitter64():
                         print("Template match. New track started")
                         recently_split = False
                         time.sleep(10)
+
                     elif(template_matching.match_template(frame, reset_template, .6) and curr != 4 and curr != 8 and curr != 12):
                         recently_split = False
                         run = False
@@ -67,8 +81,8 @@ def KartSplitter64():
                         break
                                  
                 else:                       
-                    ##Check if either run has reset (-1),
-                    ##or run has finished (16)
+                    ## Check if either run has reset (-1),
+                    ## or run has finished (16)
                     if(curr == -1 or curr == 16):
                         run = False
                         break
@@ -76,12 +90,12 @@ def KartSplitter64():
                     pred = m.predict(frame, fast_model)
                     
                     if(pred[0][0] == 1.0):
-                        pred = m.predict(frame, check_model)
+                        ## Run verification prediction to confirm results
+                        pred = m.predict(frame, verification_model)
                         if(pred[0][0] > 0.9):
-                            ls.retroactive_split(s, MODEL_PREDICTION_TIME + CHECK_MODEL_PREDICTION_TIME)
+                            ls.retroactive_split(s, MODEL_PREDICTION_TIME + VERIFICATION_MODEL_PREDICTION_TIME)
                             recently_split = True
                             print("Split probs: " + str(pred))
-
 
                     if(template_matching.match_template(frame, reset_template, .6)):
                         recently_split = False
@@ -93,12 +107,9 @@ def KartSplitter64():
                         print("Missed split. Applying retroactive split")
                         ls.retroactive_split(s, CONSOLE_RESET_TIME)
                         recently_split = True
-
-                    
-                                          
+                             
             else:
-                frame = np.array(sct.grab(monitor))
-                frame = np.delete(frame, 3, axis=2)
+                frame = get_frame(monitor, sct)
 
                 if(template_matching.match_template(frame, tracks_templates[0], .7)):
                     print("Start of run detected")
@@ -107,7 +118,7 @@ def KartSplitter64():
                     run = True
                     time.sleep(5)
                     
-                cv.waitKey(30)
+                cv.waitKey(25)
 
 if __name__ == "__main__":
     KartSplitter64()
