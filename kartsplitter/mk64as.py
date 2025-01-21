@@ -36,7 +36,7 @@ def load_models():
     verification_model = m.load('../models/keras/model.keras')
     m.warm_up(fast_model)
     m.warm_up(verification_model)
-    MODEL_PREDICTION_TIME = m.set_prediction_time(fast_model)
+    FAST_MODEL_PREDICTION_TIME = m.set_prediction_time(fast_model)
     VERIFICATION_MODEL_PREDICTION_TIME = m.set_prediction_time(verification_model)
 
     return fast_model, verification_model
@@ -93,7 +93,7 @@ def KartSplitter64():
                         ## Run verification prediction to confirm results
                         pred = m.predict(frame, verification_model)
                         if(pred[0][0] > 0.9):
-                            ls.retroactive_split(s, MODEL_PREDICTION_TIME + VERIFICATION_MODEL_PREDICTION_TIME)
+                            ls.retroactive_split(s, FAST_MODEL_PREDICTION_TIME + VERIFICATION_MODEL_PREDICTION_TIME)
                             recently_split = True
                             print("Split probs: " + str(pred))
 
