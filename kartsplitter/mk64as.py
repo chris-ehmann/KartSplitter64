@@ -1,3 +1,4 @@
+from pickle import FALSE
 import cv2 as cv
 import numpy as np
 import mss as mss
@@ -43,16 +44,11 @@ def load_models():
 
 def check_reset_run(s, frame, reset_template, curr, rs = False):
     if(template_matching.match_template(frame, reset_template, .6)):
-        if rs:
-            if(curr != 4 and curr != 8 and curr != 12):
-                ls.reset(s)
-                return False
-        else:
+        if((rs == True and curr != 4 and curr != 8 and curr != 12) or (rs == False)):
             ls.reset(s)
             return False
-    else: 
-        return True
 
+    return True
 
 def KartSplitter64(monitor, fast_model, verification_model, reset_template, console_reset_template, tracks_templates, s):
     ##TODO: Clean up this mess
@@ -64,21 +60,20 @@ def KartSplitter64(monitor, fast_model, verification_model, reset_template, cons
             while run:
                 frame = get_frame(monitor, sct)
                 curr = ls.get_current_split(s)
-
                 ## Check if run has finished
                 if(curr == 16):
-                    run = recently_split = False
+                    run = False
                     break
 
                 if(recently_split == True and curr != -1):
-                    
-                    if(template_matching.match_template(frame, tracks_templates[ls.get_current_split(s)], .7)):
+                    if(template_matching.match_template(frame, tracks_templates[curr], .7)):
                         print("Template match. New track started")
                         recently_split = False
                         time.sleep(10)
 
                     run = check_reset_run(s, frame, reset_template, curr, True)
                     if run == False:
+                        print("Reset run detected")
                         break
                                  
                 else:                       
@@ -98,8 +93,9 @@ def KartSplitter64(monitor, fast_model, verification_model, reset_template, cons
                             recently_split = True
                             print("Split probs: " + str(pred))
 
-                    run = check_reset_run(s, frame, reset_template, curr, True)
+                    run = check_reset_run(s, frame, reset_template, curr)
                     if run == False:
+                        print("Reset run detected")
                         break
 
                     elif(template_matching.match_template(frame, console_reset_template, .01, "TM_SQDIFF_NORMED")):
