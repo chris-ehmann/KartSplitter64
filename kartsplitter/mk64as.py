@@ -20,8 +20,8 @@ def get_capture():
     top_left_corner = pyautogui.position()
     input("Move mouse to bottom right corner of captured video, then press enter:")
     bot_right_corner = pyautogui.position()
-
     monitor = {"top": top_left_corner.y, "left": top_left_corner.x, "width": bot_right_corner.x - top_left_corner.x, "height": bot_right_corner.y - top_left_corner.y}
+
     return monitor
 
 def get_frame(monitor, sct):
@@ -41,17 +41,21 @@ def load_models():
 
     return fast_model, verification_model
 
-def KartSplitter64():
+def check_reset_run(s, frame, reset_template, curr, rs = False):
+    if(template_matching.match_template(frame, reset_template, .6)):
+        if rs:
+            if(curr != 4 and curr != 8 and curr != 12):
+                ls.reset(s)
+                return False
+        else:
+            ls.reset(s)
+            return False
+    else: 
+        return True
+
+
+def KartSplitter64(monitor, fast_model, verification_model, reset_template, console_reset_template, tracks_templates, s):
     ##TODO: Clean up this mess
-    fast_model, verification_model = load_models()
-    reset_template, console_reset_template = template_matching.load_reset_templates()
-    tracks_templates = template_matching.load_track_templates()
-
-    os.system('cls')
-    s = ls.connect()
-    ls.switch_to_gametime(s)
-
-    monitor = get_capture()
     recently_split = False
     run = False
 
@@ -63,8 +67,7 @@ def KartSplitter64():
 
                 ## Check if run has finished
                 if(curr == 16):
-                    run = False
-                    recently_split = False
+                    run = recently_split = False
                     break
 
                 if(recently_split == True and curr != -1):
@@ -74,10 +77,8 @@ def KartSplitter64():
                         recently_split = False
                         time.sleep(10)
 
-                    elif(template_matching.match_template(frame, reset_template, .6) and curr != 4 and curr != 8 and curr != 12):
-                        recently_split = False
-                        run = False
-                        ls.reset(s)
+                    run = check_reset_run(s, frame, reset_template, curr, True)
+                    if run == False:
                         break
                                  
                 else:                       
@@ -97,10 +98,8 @@ def KartSplitter64():
                             recently_split = True
                             print("Split probs: " + str(pred))
 
-                    if(template_matching.match_template(frame, reset_template, .6)):
-                        recently_split = False
-                        run = False
-                        ls.reset(s)
+                    run = check_reset_run(s, frame, reset_template, curr, True)
+                    if run == False:
                         break
 
                     elif(template_matching.match_template(frame, console_reset_template, .01, "TM_SQDIFF_NORMED")):
@@ -121,4 +120,13 @@ def KartSplitter64():
                 cv.waitKey(25)
 
 if __name__ == "__main__":
-    KartSplitter64()
+    fast_model, verification_model = load_models()
+    reset_template, console_reset_template = template_matching.load_reset_templates()
+    tracks_templates = template_matching.load_track_templates()
+    os.system('cls')
+
+    s = ls.connect()
+    ls.switch_to_gametime(s)
+    monitor = get_capture()
+
+    KartSplitter64(monitor, fast_model, verification_model, reset_template, console_reset_template, tracks_templates, s)
