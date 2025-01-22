@@ -1,4 +1,3 @@
-from pickle import FALSE
 import cv2 as cv
 import numpy as np
 import mss as mss
