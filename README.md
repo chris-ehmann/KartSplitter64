@@ -1,6 +1,6 @@
 # KartSplitter64
 
-KartSplitter64 is an **in-development** auto-splitter made for Mario Kart 64. It uses a combination of template matching and predictions via a CNN to analyze gameplay frame-by-frame.
+KartSplitter64 is an **in-development** auto-splitter made for Mario Kart 64. It uses a combination of template matching and predictions via a convolutional neural-network to analyze gameplay frame-by-frame.
 
 ## Features
 
@@ -10,15 +10,15 @@ KartSplitter64 is an **in-development** auto-splitter made for Mario Kart 64. It
 
 ## Usage
 
-**Required Python Version:** `3.10.7`
-(Older or newer versions may work, but I can't guarantee that.)
+**Python Version:** `3.10.7`
+(Older or newer versions within a certain range will probably work, YMMV)
 
 KartSplitter64 is in a very early stage of development, currently being a minimally viable product. As such, you'll need to run the program via command line. You will need to install the required dependencies first, which you can do by navigating to the root directory of this project, and running 
 ```
 pip install -r requirements.txt
 ```
 
-You can then simply run the file `mk64as.py` located inside the `kartsplitter` directory. **Please make sure that LiveSplit Server is currently running before you do this! Also, check to make sure that the LiveSplit Server is configured to the default settings (i.e., "Server Port" is set to 16384). This will be changed in the future to be customizable.**
+You can then simply run the file `mk64as.py` located inside the `kartsplitter` directory. **Please make sure that LiveSplit Server is currently running before you do this! Also, check to make sure that LiveSplit Server is configured to the default settings (i.e., "Server Port" is set to 16384).**
 
 ## Bug Reporting/Feature Requests
 TBD. Some stuff is already planned (such as a user interface where you can select your capture window and easily define the gameplay region), but for any changes or issues, please use [![GitHub issues](https://img.shields.io/github/issues/chris-ehmann/KartSplitter64.svg?style=plastic)](https://github.com/chris-ehmann/KartSplitter64/issues)
